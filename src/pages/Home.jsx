@@ -34,7 +34,7 @@ const Home = () => {
             </p>
             
             {/* Search Form */}
-            <div className="mx-auto" style={{width: '1200px', maxWidth: '90vw'}}>
+            <div className="w-full max-w-6xl mx-auto px-4">
 
               
               {/* Search Card */}
