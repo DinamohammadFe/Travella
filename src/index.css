@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Improved focus styles for accessibility */
+  *:focus {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-blue-600 px-6 py-2 rounded-lg font-medium border border-blue-600 hover:bg-blue-50 transition-all duration-300 shadow-sm hover:shadow-lg transform hover:-translate-y-0.5;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 hover:border-gray-400;
+  }
+  
+  /* Loading animation */
+  .loading-spinner {
+    @apply inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+  }
+  
+  /* Fade in animation */
+  .fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+  
+  .slide-up {
+    animation: slideUp 0.8s ease-out;
+  }
+  
+  /* Gradient backgrounds */
+  .gradient-bg {
+    background: linear-gradient(135deg, theme('colors.blue.50') 0%, theme('colors.teal.50') 100%);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, theme('colors.blue.600'), theme('colors.teal.600'));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Improved scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: theme('colors.gray.100');
+}
+
+::-webkit-scrollbar-thumb {
+  background: theme('colors.blue.400');
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: theme('colors.blue.500');
+}
