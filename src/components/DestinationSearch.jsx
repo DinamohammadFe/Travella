@@ -5,8 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { getSuggestions } from '../services/nominatimService'
-import { fetchCityImage, validateImageUrl } from '../services/imageService.js'
-import { fetchCityAttractionImages } from '../services/wikimediaService.js'
+import { getCityImage } from '../services/cityImages.js'
 
 // Fix Leaflet default markers
 delete L.Icon.Default.prototype._getIconUrl
@@ -47,27 +46,14 @@ const DestinationSearch = () => {
   ])
 
   // Mock data for demonstration - similar to TripAdvisor results
-  // Function to get destination header image using imageService only
-  const getDestinationHeaderImage = async (query) => {
-    try {
-      const imageResult = await fetchCityImage(query, 800, 600);
-      
-      // Validate the image URL
-      const isValid = await validateImageUrl(imageResult.url);
-      if (isValid) {
-        return imageResult.url;
-      }
-      
-      // Fallback to default travel image
-      return 'https://i.postimg.cc/Gthmqhhn/pexels-pierre-blache-651604-3105066.jpg';
-    } catch (error) {
-      console.error('Error getting header image:', error);
-      // Return a reliable fallback image
-      return 'https://i.postimg.cc/Gthmqhhn/pexels-pierre-blache-651604-3105066.jpg';
-    }
+  // Function to get destination header image using static cityImages
+  const getDestinationHeaderImage = (query) => {
+    // Extract city name from query (remove country/state info)
+    const cityName = query.split(',')[0].trim();
+    return getCityImage(cityName, 'https://i.postimg.cc/Gthmqhhn/pexels-pierre-blache-651604-3105066.jpg');
   }
 
-  // Function to generate dynamic search results using imageService only
+  // Function to generate dynamic search results using static city images
   const generateSearchResults = async (query) => {
     try {
       // Get geocoding data from Nominatim
@@ -76,30 +62,34 @@ const DestinationSearch = () => {
         const geocodeResults = await getSuggestions(query, 1);
         if (geocodeResults && geocodeResults.length > 0) {
           const result = geocodeResults[0];
-          center = {
-            lat: parseFloat(result.lat),
-            lng: parseFloat(result.lon),
-            displayName: result.displayName
-          };
-          // Update map state
-          setMapCenter([center.lat, center.lng]);
-          setMapZoom(12);
-          setShowMap(true);
+          const lat = parseFloat(result.lat);
+          const lng = parseFloat(result.lon);
+          
+          // Validate coordinates before using them
+          if (!isNaN(lat) && !isNaN(lng) && isFinite(lat) && isFinite(lng)) {
+            center = {
+              lat: lat,
+              lng: lng,
+              displayName: result.displayName
+            };
+            // Update map state
+            setMapCenter([center.lat, center.lng]);
+            setMapZoom(12);
+            setShowMap(true);
+          } else {
+            console.warn('Invalid coordinates received from geocoding:', result);
+          }
         }
       } catch (geocodeError) {
         console.error('Geocoding error:', geocodeError);
       }
 
-      // Get attraction images from Wikimedia Commons
-      let attractionImages = [];
-      try {
-        attractionImages = await fetchCityAttractionImages(query);
-        setAttractionImages(attractionImages);
-      } catch (imageError) {
-        console.error('Error fetching attraction images:', imageError);
-      }
+      // Set static attraction images based on city
+      const cityName = query.split(',')[0].trim();
+      const staticImages = [getCityImage(cityName)];
+      setAttractionImages(staticImages);
 
-      const headerImage = await getDestinationHeaderImage(query);
+      const headerImage = getDestinationHeaderImage(query);
       
       // Generate sample attractions, hotels, and restaurants for the destination
       const attractions = await generateSampleAttractions(query, attractionImages);
@@ -117,7 +107,9 @@ const DestinationSearch = () => {
           { id: 'hotels', name: 'Places to stay', count: hotels.length },
           { id: 'restaurants', name: 'Restaurants', count: restaurants.length }
         ],
-        attractions: [...attractions, ...hotels, ...restaurants]
+        attractions,
+        hotels,
+        restaurants
       };
     } catch (error) {
       console.error('Error generating search results:', error);
@@ -140,19 +132,9 @@ const DestinationSearch = () => {
       const template = attractionTemplates[i];
       let image = 'https://via.placeholder.com/400x300?text=No+Image+Available'; // Default fallback
       
-      // Use Wikimedia Commons images if available
-      if (wikimediaImages && wikimediaImages.length > i) {
-        image = wikimediaImages[i].url;
-      } else {
-        // Fallback to imageService if no Wikimedia image available
-        try {
-          const imageResult = await fetchCityImage(destination, 400, 300);
-          image = imageResult.url;
-        } catch (error) {
-          console.error(`Error getting image for ${template.name}:`, error);
-          // Keep the default fallback image
-        }
-      }
+      // Use static city image
+      const cityName = destination.split(',')[0].trim();
+      image = getCityImage(cityName, 'https://via.placeholder.com/400x300?text=No+Image+Available');
       
       attractions.push({
         id: i + 1,
@@ -184,16 +166,9 @@ const DestinationSearch = () => {
     const hotels = [];
     for (let i = 0; i < hotelTemplates.length; i++) {
       const template = hotelTemplates[i];
-      let image = 'https://picsum.photos/400/300?random=' + (i + 6); // Default fallback
-      
-      try {
-        // Use destination name for consistent city images
-        const imageResult = await fetchCityImage(destination, 400, 300);
-        image = imageResult.url;
-      } catch (error) {
-        console.error(`Error getting image for ${template.name}:`, error);
-        // Keep the fallback image
-      }
+      // Use static city image
+      const cityName = destination.split(',')[0].trim();
+      const image = getCityImage(cityName, 'https://via.placeholder.com/400x300/6b7280/ffffff?text=Hotel');
       
       hotels.push({
         id: i + 6,
@@ -225,16 +200,9 @@ const DestinationSearch = () => {
     const restaurants = [];
     for (let i = 0; i < restaurantTemplates.length; i++) {
       const template = restaurantTemplates[i];
-      let image = 'https://picsum.photos/400/300?random=' + (i + 9); // Default fallback
-      
-      try {
-        // Use destination name for consistent city images
-        const imageResult = await fetchCityImage(destination, 400, 300);
-        image = imageResult.url;
-      } catch (error) {
-        console.error(`Error getting image for ${template.name}:`, error);
-        // Keep the fallback image
-      }
+      // Use static city image
+      const cityName = destination.split(',')[0].trim();
+      const image = getCityImage(cityName, 'https://via.placeholder.com/400x300/6b7280/ffffff?text=Restaurant');
       
       restaurants.push({
         id: i + 9,
@@ -747,14 +715,18 @@ const DestinationSearch = () => {
     if (!searchResults) return []
     
     let results = []
+    const attractions = searchResults.attractions || []
+    const hotels = searchResults.hotels || []
+    const restaurants = searchResults.restaurants || []
+    
     if (activeCategory === 'all') {
-      results = [...searchResults.attractions, ...searchResults.hotels, ...searchResults.restaurants]
+      results = [...attractions, ...hotels, ...restaurants]
     } else if (activeCategory === 'attractions') {
-      results = searchResults.attractions
+      results = attractions
     } else if (activeCategory === 'hotels') {
-      results = searchResults.hotels
+      results = hotels
     } else if (activeCategory === 'restaurants') {
-      results = searchResults.restaurants
+      results = restaurants
     }
 
     // Apply rating filter
