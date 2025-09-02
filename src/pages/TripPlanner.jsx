@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import GoogleMap, { createMarker, createInfoWindow } from '../components/GoogleMap'
-import PlaceSearch from '../components/PlaceSearch'
-import placesService from '../services/placesService'
+import EnhancedPlaceSearch from '../components/EnhancedPlaceSearch'
+import { geocodeCity, fetchAttractions } from '../services/freeMapsService'
 import tripService from '../services/tripService'
 
 const TripPlanner = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { currentUser } = useAuth()
   const [formData, setFormData] = useState({
     destination: '',
@@ -29,6 +29,12 @@ const TripPlanner = () => {
   useEffect(() => {
     setIsVisible(true)
     
+    // Check for URL parameters from search
+    const urlParams = new URLSearchParams(location.search)
+    const destination = urlParams.get('destination')
+    const departureDate = urlParams.get('departureDate')
+    const returnDate = urlParams.get('returnDate')
+    
     // Load current trip if editing
     const currentTrip = tripService.getCurrentTrip()
     if (currentTrip) {
@@ -44,11 +50,22 @@ const TripPlanner = () => {
       }
       if (currentTrip.destination) {
         setShowMap(true)
-        setShowPlaceSearch(true)
         updateMapForDestination(currentTrip.destination)
+        setShowPlaceSearch(true)
       }
+    } else if (destination) {
+      // Pre-fill form with search data from Home page
+      setFormData({
+        destination: destination,
+        startDate: departureDate || '',
+        endDate: returnDate || '',
+        title: `Trip to ${destination}`
+      })
+      setShowMap(true)
+      updateMapForDestination(destination)
+      setShowPlaceSearch(true)
     }
-  }, [])
+  }, [location.search])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -71,19 +88,14 @@ const TripPlanner = () => {
 
   const updateMapForDestination = async (destination) => {
     try {
-      const result = await placesService.geocodeAddress(destination)
-      setMapCenter(result.location)
-      
-      // Add a marker for the destination
-      const marker = createMarker({
-        position: result.location,
-        title: destination,
-        infoWindow: createInfoWindow({
-          name: destination,
-          address: result.address
-        })
-      })
-      setMapMarkers([marker])
+      const result = await geocodeCity(destination)
+      if (result) {
+        setMapCenter({ lat: result.lat, lng: result.lon })
+        
+        // Fetch attractions for the destination
+        const attractions = await fetchAttractions(result.lat, result.lon)
+        setMapMarkers(attractions)
+      }
     } catch (error) {
       console.error('Failed to geocode destination:', error)
     }
@@ -107,41 +119,22 @@ const TripPlanner = () => {
     })
 
     // Add marker to map
-    const marker = createMarker({
-      position: place.location,
-      title: place.name,
-      infoWindow: createInfoWindow(place)
-    })
+    const marker = {
+      id: place.id,
+      name: place.name,
+      lat: place.location.lat,
+      lng: place.location.lng,
+      type: place.types?.[0] || 'attraction'
+    }
     
     setMapMarkers(prev => [...prev, marker])
   }
 
   const removeSelectedPlace = (placeId) => {
     setSelectedPlaces(prev => prev.filter(p => p.id !== placeId))
-    // Remove marker from map (simplified - in a real app you'd track marker IDs)
-    const remainingPlaces = selectedPlaces.filter(p => p.id !== placeId)
-    const newMarkers = remainingPlaces.map(place => 
-      createMarker({
-        position: place.location,
-        title: place.name,
-        infoWindow: createInfoWindow(place)
-      })
-    )
     
-    // Add destination marker back if we have a destination
-    if (formData.destination) {
-      const destMarker = createMarker({
-        position: mapCenter,
-        title: formData.destination,
-        infoWindow: createInfoWindow({
-          name: formData.destination,
-          address: formData.destination
-        })
-      })
-      newMarkers.unshift(destMarker)
-    }
-    
-    setMapMarkers(newMarkers)
+    // Remove marker from map
+    setMapMarkers(prev => prev.filter(marker => marker.id !== placeId))
   }
 
   const handleSubmit = (e) => {
@@ -176,7 +169,7 @@ const TripPlanner = () => {
     <div className="min-h-screen gradient-bg py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         <div className={`text-center mb-12 ${isVisible ? 'fade-in' : 'opacity-0'}`}>
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
             Plan Your <span className="gradient-text">Dream Trip</span> ✈️
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -228,6 +221,9 @@ const TripPlanner = () => {
                   </svg>
                 </div>
               </div>
+              
+
+              
               <p className="text-sm text-gray-500 mt-4 flex items-center gap-2">
                 💡 <span>Adding dates helps us suggest seasonal activities and better pricing</span>
               </p>
@@ -250,12 +246,16 @@ const TripPlanner = () => {
                     </svg>
                   </button>
                 </div>
-                <GoogleMap
-                  center={mapCenter}
-                  zoom={13}
-                  markers={mapMarkers}
-                  className="w-full h-80"
-                />
+                <div className="w-full h-80 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <p className="text-lg font-medium">{formData.destination || 'Select Destination'}</p>
+                    <p className="text-sm">Map will appear here once destination is selected</p>
+                  </div>
+                </div>
                 
                 {/* Selected Places */}
                 {selectedPlaces.length > 0 && (
@@ -293,7 +293,7 @@ const TripPlanner = () => {
             {/* Place Search */}
             {showPlaceSearch && formData.destination && (
               <div className="fade-in mt-4">
-                <PlaceSearch
+                <EnhancedPlaceSearch
                   destination={formData.destination}
                   onPlaceSelect={handlePlaceSelect}
                 />

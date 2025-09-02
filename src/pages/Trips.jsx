@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Calendar, MapPin, Edit, Trash2, Copy, Search, Filter } from 'lucide-react'
+import { Plus, Search, Filter } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import tripService from '../services/tripService'
+import TripList from '../components/TripList'
 
 const Trips = () => {
   const navigate = useNavigate()
@@ -124,87 +125,6 @@ const Trips = () => {
     }
   }
 
-  const TripCard = ({ trip }) => {
-    const status = getTripStatus(trip)
-    
-    return (
-      <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              {trip.title || trip.destination || 'Untitled Trip'}
-            </h3>
-            <div className="flex items-center text-gray-600 mb-2">
-              <MapPin className="w-4 h-4 mr-2" />
-              <span>{trip.destination || 'No destination set'}</span>
-            </div>
-            <div className="flex items-center text-gray-600 mb-3">
-              <Calendar className="w-4 h-4 mr-2" />
-              <span>
-                {formatDate(trip.startDate)}
-                {trip.endDate && trip.endDate !== trip.startDate && (
-                  <span> - {formatDate(trip.endDate)}</span>
-                )}
-              </span>
-            </div>
-          </div>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status)}`}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
-        </div>
-        
-        {trip.selectedPlaces && trip.selectedPlaces.length > 0 && (
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">
-              {trip.selectedPlaces.length} place{trip.selectedPlaces.length !== 1 ? 's' : ''} selected
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {trip.selectedPlaces.slice(0, 3).map((place, index) => (
-                <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                  {place.name}
-                </span>
-              ))}
-              {trip.selectedPlaces.length > 3 && (
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                  +{trip.selectedPlaces.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-        
-        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-          <div className="text-sm text-gray-500">
-            Created {new Date(trip.createdAt).toLocaleDateString()}
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => handleEditTrip(trip)}
-              className="p-2 text-blue-600 hover:bg-blue-100 rounded-full transition-colors"
-              title="Edit trip"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => handleDuplicateTrip(trip.id)}
-              className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
-              title="Duplicate trip"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => handleDeleteTrip(trip.id)}
-              className="p-2 text-red-600 hover:bg-red-100 rounded-full transition-colors"
-              title="Delete trip"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -288,37 +208,16 @@ const Trips = () => {
           </div>
         </div>
         
-        {/* Trips Grid */}
-        {filteredTrips.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTrips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="mb-4">
-              <MapPin className="w-16 h-16 text-gray-300 mx-auto" />
-            </div>
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
-              {searchQuery || statusFilter !== 'all' ? 'No trips found' : 'No trips yet'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {searchQuery || statusFilter !== 'all' 
-                ? 'Try adjusting your search or filter criteria'
-                : 'Start planning your first adventure!'}
-            </p>
-            {!searchQuery && statusFilter === 'all' && (
-              <button
-                onClick={() => navigate('/trip-planner')}
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Create Your First Trip
-              </button>
-            )}
-          </div>
-        )}
+        {/* Trips List */}
+        <TripList 
+          trips={filteredTrips}
+          loading={false}
+          searchQuery={searchQuery}
+          statusFilter={statusFilter}
+          onEditTrip={handleEditTrip}
+          onDeleteTrip={handleDeleteTrip}
+          onDuplicateTrip={handleDuplicateTrip}
+        />
       </div>
     </div>
   )

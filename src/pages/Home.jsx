@@ -1,18 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import DestinationSearch from '../components/DestinationSearch'
 
 const Home = () => {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    setIsVisible(true)
+    const timer = setTimeout(() => {
+      setIsVisible(true)
+    }, 100)
+    return () => clearTimeout(timer)
   }, [])
+
+
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Hero Section */}
       <section 
-        className="relative min-h-screen flex items-center justify-center"
+        className="relative min-h-screen flex items-start justify-center pt-20"
         style={{
           backgroundImage: `url('https://i.postimg.cc/fyJs5RLn/beach-2562563-1920.jpg')`,
           backgroundSize: 'cover',
@@ -24,8 +30,8 @@ const Home = () => {
         <div className="absolute inset-0 bg-black/10"></div>
         
         {/* Content */}
-        <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8">
-          <div className={`max-w-4xl mx-auto ${isVisible ? 'fade-in' : 'opacity-0'}`}>
+        <div className="relative z-10 text-center text-white px-4 sm:px-6 lg:px-8 w-full">
+          <div className={`max-w-6xl mx-auto ${isVisible ? 'fade-in' : 'opacity-0'}`}>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
               Life is a Journey Not a Destination
             </h1>
@@ -33,81 +39,11 @@ const Home = () => {
               Explore the World with us.
             </p>
             
-            {/* Search Form */}
-            <div className="w-full max-w-6xl mx-auto px-4">
-              {/* Search Card */}
-              <div className="bg-white rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 p-4 md:p-6">
-                {/* Search Fields */}
-                <div className="flex flex-col md:flex-row md:items-center w-full gap-4 md:gap-0">
-                  {/* From */}
-                  <div className="flex items-center flex-1 min-h-[40px] px-3 py-2 border border-gray-200 rounded-lg md:border-0 md:p-0">
-                    <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    </svg>
-                    <input type="text" placeholder="From" className="w-full text-gray-800 text-sm focus:outline-none" />
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
-                  
-                  {/* To */}
-                  <div className="flex items-center flex-1 min-h-[40px] px-3 py-2 border border-gray-200 rounded-lg md:border-0 md:p-0">
-                    <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    </svg>
-                    <input type="text" placeholder="To" className="w-full text-gray-800 text-sm focus:outline-none" />
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
-                  
-                  {/* Departure Date */}
-                  <div className="flex items-center flex-1 min-h-[40px] px-3 py-2 border border-gray-200 rounded-lg md:border-0 md:p-0">
-                    <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <input type="date" className="w-full text-gray-800 text-sm focus:outline-none" />
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
-                  
-                  {/* Return Date */}
-                  <div className="flex items-center flex-1 min-h-[40px] px-3 py-2 border border-gray-200 rounded-lg md:border-0 md:p-0">
-                    <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <input type="date" className="w-full text-gray-800 text-sm focus:outline-none" />
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="hidden md:block h-6 w-px bg-gray-300 mx-2"></div>
-                  
-                  {/* Travellers */}
-                  <div className="flex items-center flex-1 min-h-[40px] px-3 py-2 border border-gray-200 rounded-lg md:border-0 md:p-0">
-                    <svg className="w-4 h-4 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <select className="w-full text-gray-800 text-sm focus:outline-none bg-transparent">
-                      <option>1 Adult, Economy</option>
-                      <option>2 Adults, Economy</option>
-                      <option>1 Adult, Business</option>
-                      <option>2 Adults, Business</option>
-                    </select>
-                  </div>
-                  
-                  {/* Search Button */}
-                  <Link
-                    to="/planner"
-                    className="flex items-center justify-center px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg text-sm w-full md:w-auto md:ml-4 mt-4 md:mt-0"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    Search
-                  </Link>
-                </div>
-              </div>
+
+            
+            {/* Destination Search */}
+            <div className="mt-12 w-full">
+              <DestinationSearch />
             </div>
           </div>
         </div>
@@ -197,10 +133,10 @@ const Home = () => {
               <div className={`relative overflow-hidden rounded-2xl group cursor-pointer transition-all duration-300 hover:scale-105 ${isVisible ? 'fade-in' : 'opacity-0'}`} style={{animationDelay: '0.1s'}}>
                  <div className="h-64 relative overflow-hidden rounded-2xl">
                    <img 
-                     src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2832&q=80" 
-                     alt="United States" 
-                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                   />
+                   src="https://i.postimg.cc/RFdBVNj6/us.jpg" 
+                   alt="United States" 
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                 />
                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300"></div>
                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
                      <h3 className="text-2xl font-bold mb-2">United States</h3>
@@ -213,10 +149,10 @@ const Home = () => {
                <div className={`relative overflow-hidden rounded-2xl group cursor-pointer transition-all duration-300 hover:scale-105 ${isVisible ? 'fade-in' : 'opacity-0'}`} style={{animationDelay: '0.2s'}}>
                  <div className="h-64 relative overflow-hidden rounded-2xl">
                    <img 
-                     src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-                     alt="United Kingdom" 
-                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                   />
+                   src="https://i.postimg.cc/PrLB03r8/uk.jpg" 
+                   alt="United Kingdom" 
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                 />
                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300"></div>
                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
                      <h3 className="text-2xl font-bold mb-2">United Kingdom</h3>
@@ -229,10 +165,10 @@ const Home = () => {
                <div className={`relative overflow-hidden rounded-2xl group cursor-pointer transition-all duration-300 hover:scale-105 ${isVisible ? 'fade-in' : 'opacity-0'}`} style={{animationDelay: '0.3s'}}>
                  <div className="h-64 relative overflow-hidden rounded-2xl">
                    <img 
-                     src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-                     alt="Australia" 
-                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                   />
+                   src="https://i.postimg.cc/XYfD0TMX/australia.jpg" 
+                   alt="Australia" 
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                 />
                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300"></div>
                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white">
                      <h3 className="text-2xl font-bold mb-2">Australia</h3>
@@ -245,7 +181,7 @@ const Home = () => {
              <div className={`relative overflow-hidden rounded-2xl group cursor-pointer transition-all duration-300 hover:scale-105 ${isVisible ? 'fade-in' : 'opacity-0'}`} style={{animationDelay: '0.4s'}}>
                <div className="h-64 relative overflow-hidden rounded-2xl">
                  <img 
-                   src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80" 
+                   src="https://i.postimg.cc/BZ83GQm6/india.jpg" 
                    alt="India" 
                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                  />
@@ -277,7 +213,7 @@ const Home = () => {
              <div className={`relative overflow-hidden rounded-2xl group cursor-pointer transition-all duration-300 hover:scale-105 ${isVisible ? 'fade-in' : 'opacity-0'}`} style={{animationDelay: '0.6s'}}>
                <div className="h-64 relative overflow-hidden rounded-2xl">
                  <img 
-                   src="https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
+                   src="https://i.postimg.cc/kGM7xxxv/Indonesia.jpg" 
                    alt="Indonesia" 
                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                  />

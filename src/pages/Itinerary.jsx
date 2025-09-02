@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import tripService from '../services/tripService'
-import GoogleMap from '../components/GoogleMap'
 
 const Itinerary = () => {
   const navigate = useNavigate()
@@ -74,18 +73,11 @@ const Itinerary = () => {
     const dayActivities = itinerary[dayIndex].activities
     const markers = dayActivities.map((activity, index) => ({
       id: `day-${dayIndex}-activity-${index}`,
-      position: {
-        lat: activity.place.geometry?.location?.lat || activity.place.lat,
-        lng: activity.place.geometry?.location?.lng || activity.place.lng
-      },
-      title: activity.place.name,
-      info: `
-        <div class="p-2">
-          <h3 class="font-semibold">${activity.place.name}</h3>
-          <p class="text-sm text-gray-600">${activity.time || 'No time set'}</p>
-          <p class="text-sm">${activity.place.address || ''}</p>
-        </div>
-      `
+      name: activity.place.name,
+      lat: activity.place.geometry?.location?.lat || activity.place.lat,
+      lng: activity.place.geometry?.location?.lng || activity.place.lng,
+      type: 'itinerary',
+      description: `${activity.time || 'No time set'} - ${activity.place.address || ''}`
     }))
 
     setMapMarkers(markers)
@@ -375,12 +367,16 @@ const Itinerary = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-4">
                 Day {selectedDay + 1} Map
               </h3>
-              <GoogleMap
-                center={mapCenter}
-                zoom={13}
-                markers={mapMarkers}
-                className="w-full h-96 rounded-lg"
-              />
+              <div className="w-full rounded-lg h-96 bg-gray-100 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <p className="text-lg font-medium">{trip?.destination || 'Destination'}</p>
+                  <p className="text-sm">Day {selectedDay + 1} Map will appear here</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

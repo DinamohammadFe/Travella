@@ -4,6 +4,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import TripPlanner from './pages/TripPlanner'
+import CityDetails from './pages/CityDetails'
 import Itinerary from './pages/Itinerary'
 import SavedTrips from './pages/SavedTrips'
 import Trips from './pages/Trips'
@@ -11,6 +12,7 @@ import About from './pages/About'
 import Features from './pages/Features'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+
 
 function App() {
   return (
@@ -20,6 +22,7 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/" element={<Home />} />
+              <Route path="/city/:cityName" element={<CityDetails />} />
               <Route path="/planner" element={<TripPlanner />} />
               <Route path="/trip-planner" element={<TripPlanner />} />
               <Route path="/itinerary" element={<Itinerary />} />
@@ -27,7 +30,6 @@ function App() {
               <Route path="/saved-trips" element={<SavedTrips />} />
               <Route path="/about" element={<About />} />
               <Route path="/features" element={<Features />} />
-
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
           </Routes>
